@@ -23,6 +23,7 @@ namespace JudoScrapper
             browser = new ScrapingBrowser();
             browser.AllowAutoRedirect = true; // Browser has settings you can access in setup
             browser.AllowMetaRedirect = true;
+            browser.Encoding = new System.Text.UTF8Encoding();
 
             mainuri = new Uri(url);
             listPage = browser.NavigateToPage(mainuri);
@@ -71,7 +72,7 @@ namespace JudoScrapper
                     n.Name.Equals("b", StringComparison.InvariantCultureIgnoreCase) &&
                     n.InnerText.Equals("Domicilio:", StringComparison.InvariantCultureIgnoreCase)
                 );
-                gym.Address = properties.ElementAt(index + 1).InnerText.Trim();
+                gym.Address = properties.ElementAt(index + 1).InnerText.Replace("nº", "").Replace("º", "").Trim() + ", Madrid, Spain";
 
                 index = properties.FindIndex(n =>
                     n.Name.Equals("b", StringComparison.InvariantCultureIgnoreCase) &&
@@ -111,8 +112,9 @@ namespace JudoScrapper
 
         public void SaveToCsv(IEnumerable<Gym> gyms)
         {
-            using (var csv = new CsvWriter(new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/file.csv")))
+            using (var csv = new CsvWriter(new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/gyms.csv")))
             {
+                csv.Configuration.Encoding = new System.Text.UTF8Encoding();
                 csv.WriteRecords(gyms);
             }
         }
